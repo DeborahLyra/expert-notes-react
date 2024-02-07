@@ -1,6 +1,11 @@
 import NoteCard from "./components /note-card/NoteCard"
 import NewNoteCard from "./components /new-note-card/NewNoteCard"
 
+const note = {
+  date: new Date(),
+  content: 'hello'
+}
+
 function App() {
 
   return (
@@ -16,8 +21,8 @@ function App() {
 
       <div className="grid grid-cols-3 gap-6 auto-rows-[250px]">
         <NewNoteCard />
-        <NoteCard />
-        <NoteCard />
+        <NoteCard note= {note}/>
+        <NoteCard note= {note}/>
       </div>
     </div>
   )
