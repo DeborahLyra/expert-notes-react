@@ -3,14 +3,17 @@ import { X } from "lucide-react"
 import { ChangeEvent, FormEvent, useState } from "react"
 import { ToastT, toast } from "sonner"
 
-function NewNoteCard() {
+
+interface OnNoteCreated {
+    onNoteCreated : (content : string) => void
+} 
+
+function NewNoteCard({onNoteCreated} : OnNoteCreated ) {
 
     const [shouldShowOnBording, setShouldShowOnBording] = useState(true);
     const [content, setContent] = useState('')
 
     const handleStartEditor = () => setShouldShowOnBording(false)
-
-    //const handleClose = () => setShouldShowOnBording(true)
 
     const handleContentChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
         setContent(event.target.value)
@@ -23,7 +26,11 @@ function NewNoteCard() {
     const handleSaveNOte = (event: FormEvent) => {
         event.preventDefault()
 
-        console.log(content)
+        onNoteCreated(content) //chama a função criada na interface
+
+        setContent('')
+
+        setShouldShowOnBording(true)
 
         toast.success("Nota adicionada com sucesso")
     }
@@ -60,6 +67,7 @@ function NewNoteCard() {
                                     autoFocus
                                     className="text-sm text-slate-400 leading-6 bg-transparent resize-none flex-1 outline-none"
                                     onChange={handleContentChange}
+                                    value={content}
                                 />
                             )
                             }
