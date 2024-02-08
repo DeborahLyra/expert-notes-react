@@ -1,17 +1,20 @@
 import * as Dialog from "@radix-ui/react-dialog" //pega tudo o que tem na biblioteca e coloca em "dialog"
-import { X } from "lucide-react"
+import { AlertTriangle, X } from "lucide-react"
 import { ChangeEvent, FormEvent, useState } from "react"
 import { ToastT, toast } from "sonner"
 
 
 interface OnNoteCreated {
-    onNoteCreated : (content : string) => void
-} 
+    onNoteCreated: (content: string) => void
+}
 
-function NewNoteCard({onNoteCreated} : OnNoteCreated ) {
+function NewNoteCard({ onNoteCreated }: OnNoteCreated) {
 
     const [shouldShowOnBording, setShouldShowOnBording] = useState(true);
+    const [isRecording, setIsRecording] = useState(false)
     const [content, setContent] = useState('')
+
+    let speechRecognition : SpeechRecognition | null = null 
 
     const handleStartEditor = () => setShouldShowOnBording(false)
 
@@ -26,6 +29,10 @@ function NewNoteCard({onNoteCreated} : OnNoteCreated ) {
     const handleSaveNOte = (event: FormEvent) => {
         event.preventDefault()
 
+        if (content === '') {
+            return
+        }
+
         onNoteCreated(content) //chama a função criada na interface
 
         setContent('')
@@ -33,6 +40,50 @@ function NewNoteCard({onNoteCreated} : OnNoteCreated ) {
         setShouldShowOnBording(true)
 
         toast.success("Nota adicionada com sucesso")
+    }
+
+    const handleStartRecording = () => {
+
+        const isSpeechRecongnitionAPIAvailable = 'SpeechRecognition' in window || 'webkitSpeechRecognition' in window
+
+        if (!isSpeechRecongnitionAPIAvailable) {
+            alert('Ops, infelizmente o seu navegador não suporta')
+            return
+        }
+
+        setIsRecording(true)
+        setShouldShowOnBording(false)
+
+        const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition
+
+       speechRecognition = new SpeechRecognitionAPI()
+
+        speechRecognition.lang = 'pt-BR';
+        speechRecognition.continuous = true;
+        speechRecognition.maxAlternatives = 1;
+        speechRecognition.interimResults = true;
+
+        speechRecognition.onresult = (event) => {
+            const transcription = Array.from(event.results).reduce((text, result) => {
+                return text.concat(result[0].transcript)
+            }, '')
+
+            setContent(transcription)
+        }
+
+        speechRecognition.onerror = (event) => {
+            console.log(event)
+        }
+
+        speechRecognition.start()
+    }
+
+    const handleStopRecording = () => {
+        setIsRecording(false)
+
+        if(speechRecognition !== null){
+            speechRecognition.stop()
+        }
     }
 
     return (
@@ -52,7 +103,7 @@ function NewNoteCard({onNoteCreated} : OnNoteCreated ) {
                         <X className="size-5" />
                     </Dialog.Close>
 
-                    <form onSubmit={handleSaveNOte} className="flex flex-col flex-1">
+                    <form className="flex flex-col flex-1">
                         <div className="flex flex-1 flex-col gap-3 p-5">
                             <span className="text-sm font-medium text-slate-300">
                                 Adicionar nota
@@ -60,7 +111,7 @@ function NewNoteCard({onNoteCreated} : OnNoteCreated ) {
 
                             {shouldShowOnBording ? (
                                 <p className="text-sm leading-6 text-slate-400">
-                                    Comece <button className="text-lime-400 font-medium hover:underline">gravando uma nota</button> em áudio ou se preferir <button onClick={handleStartEditor} className="text-lime-400 font-medium hover:underline">utilize apenas texto</button>
+                                    Comece <button type="button" onClick={handleStartRecording} className="text-lime-400 font-medium hover:underline">gravando uma nota</button> em áudio ou se preferir <button type="button" onClick={handleStartEditor} className="text-lime-400 font-medium hover:underline">utilize apenas texto</button>
                                 </p>
                             ) : (
                                 <textarea
@@ -73,9 +124,18 @@ function NewNoteCard({onNoteCreated} : OnNoteCreated ) {
                             }
                         </div>
 
-                        <button className="w-full bg-lime-400 py-4 text-center text-slate-950 outline-none font-medium hover:bg-lime-500">
-                            Salvar nota
-                        </button>
+                        {isRecording ? (
+                            <button onClick={handleStopRecording} type="button" className="w-full bg-slate-900 py-4 text-center flex items-center justify-center gap-2 text-slate-300 outline-none font-medium hover:text-slate-100">
+                                <div className="size-3 bg-red-500 rounded-full animate-pulse" />
+                                Gravando (clique para interromper)
+                            </button>
+                        ) : (
+                            <button onClick={handleSaveNOte} type="button" className="w-full bg-lime-400 py-4 text-center text-slate-950 outline-none font-medium hover:bg-lime-500">
+                                Salvar nota
+                            </button>
+                        )
+                        }
+
                     </form>
                 </Dialog.Content>
             </Dialog.Portal>
