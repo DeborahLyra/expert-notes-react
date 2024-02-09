@@ -93,7 +93,7 @@ function NewNoteCard({ onNoteCreated }: OnNoteCreated) {
                     Adicionar nota
                 </span>
                 <p className="text-sm leading-6 text-slate-400">
-                    Escreva ou grave um texto em áudio 
+                    Escreva ou grave um texto  
                 </p>
             </Dialog.Trigger>
             <Dialog.Portal>
