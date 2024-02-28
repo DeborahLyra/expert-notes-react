@@ -1,7 +1,7 @@
 import * as Dialog from "@radix-ui/react-dialog" //pega tudo o que tem na biblioteca e coloca em "dialog"
-import { AlertTriangle, X } from "lucide-react"
+import { X } from "lucide-react"
 import { ChangeEvent, FormEvent, useState } from "react"
-import { ToastT, toast } from "sonner"
+import { toast } from "sonner"
 
 
 interface OnNoteCreated {

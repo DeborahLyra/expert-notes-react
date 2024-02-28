@@ -1,6 +1,6 @@
 import NoteCard from "./components /note-card/NoteCard"
 import NewNoteCard from "./components /new-note-card/NewNoteCard"
-import { ChangeEvent, HTMLInputTypeAttribute, useState } from "react"
+import { ChangeEvent, useState } from "react"
 
 interface Note {
   id: string
